@@ -42,9 +42,9 @@ except:
 
 lowest_loss = 100
 best_epoch = 0
-saved_check_points_loss = 0.05
+saved_check_points_loss = 0.2
 
-training_lowest_loss = 0.1
+training_lowest_loss = 0.5
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -74,7 +74,7 @@ def loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index):
 
     # tra_corr_loss = 0.2 * get_correlation_loss(trans, labels[:, :, :3])
     # rot_corr_loss = 0.1 * get_correlation_loss(rot, labels[:, :, 3:])
-    corr_loss = correlation_loss(trans, rot, labels)
+    corr_loss = 0.2 * correlation_loss(trans, rot, labels)
 
     hybrid_loss = loss + sum_loss + corr_loss
 
