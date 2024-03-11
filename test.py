@@ -115,7 +115,7 @@ class test():
 
         self.visualize_sequences(args)
 
-        # self.draw_dof_image(self.result, self.case_pose)
+        self.draw_dof_image(self.result, self.case_pose)
 
         # self.draw_accumulate_error(self.result, self.case_pose)
 

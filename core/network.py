@@ -199,8 +199,8 @@ class Freehand(nn.Module):
                 us_pack_new[1][idx] = img2
                 idx += 1
             us_mix[i] = us_pack_new
-        x = torch.cat([us_mix.to(self.device), opf_imgs], 1)
-        # x = opf_imgs
+        # x = torch.cat([us_mix.to(self.device), opf_imgs], 1)
+        x = opf_imgs
         # x = us_imgs
         
         x = self.conv1(x)
@@ -234,7 +234,7 @@ class Freehand(nn.Module):
 
 def network(args):
     model = Freehand(ResNeXtBottleneck, [3, 4, 6, 3])
-    model.conv1 = nn.Conv3d(in_channels=5, out_channels=64, kernel_size=(3, 7, 7), stride=(1, 2, 2), padding=(1, 3, 3), bias=False)
+    model.conv1 = nn.Conv3d(in_channels=3, out_channels=64, kernel_size=(3, 7, 7), stride=(1, 2, 2), padding=(1, 3, 3), bias=False)
     num_ftrs = model.fc1.in_features
     model.fc1 = nn.Linear(num_ftrs, (args.neighbour_slice - 1) * 3)
     num_ftrs = model.fc2.in_features

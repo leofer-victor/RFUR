@@ -72,13 +72,13 @@ def loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index):
 
     outputs = torch.cat((trans, rot), 2)
 
-    # tra_corr_loss = 0.2 * get_correlation_loss(trans, labels[:, :, :3])
-    # rot_corr_loss = 0.1 * get_correlation_loss(rot, labels[:, :, 3:])
-    corr_loss = 0.2 * correlation_loss(trans, rot, labels)
+    tra_corr_loss = 0.2 * get_correlation_loss(trans, labels[:, :, :3])
+    rot_corr_loss = 0.1 * get_correlation_loss(rot, labels[:, :, 3:])
+    # corr_loss = 0.2 * correlation_loss(trans, rot, labels)
 
-    hybrid_loss = loss + sum_loss + corr_loss
+    hybrid_loss = loss + sum_loss + tra_corr_loss + rot_corr_loss
 
-    print("loss: ", loss, "sum_loss: ", sum_loss, "corr_loss: ", corr_loss)
+    print("loss: ", loss, "sum_loss: ", sum_loss, "corr_loss: ", tra_corr_loss + rot_corr_loss)
 
     return hybrid_loss
 
@@ -92,6 +92,19 @@ def correlation_loss(trans, rot, labels):
     return 1 - sum
 
 def get_correlation_loss_value(labels, outputs):
+    x = outputs.flatten()
+    y = labels.flatten()
+    xy = x * y
+    mean_xy = torch.mean(xy)
+    mean_x = torch.mean(x)
+    mean_y = torch.mean(y)
+    cov_xy = mean_xy - mean_x * mean_y
+    var_x = torch.sum((x - mean_x) ** 2 / x.shape[0])
+    var_y = torch.sum((y - mean_y) ** 2 / y.shape[0])
+    corr_xy = cov_xy / (torch.sqrt(var_x * var_y))
+    return corr_xy
+
+def get_correlation_loss(labels, outputs):
     x = outputs.flatten()
     y = labels.flatten()
     xy = x * y
