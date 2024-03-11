@@ -124,7 +124,6 @@ def validate(criterion_mse, criterion_huber, epoch, model, val_dataset, val_data
 
     for val_blob in val_dataset:
         us_sample_slices, opf_sample_slices, labels, tf_index = [x.cuda() for x in val_blob]
-        # outputs = model(us_sample_slices, opf_sample_slices, args.neighbour_slice)
         trans, rot = model(us_sample_slices, opf_sample_slices, args.neighbour_slice)
         loss = loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index)
         val_loss += loss.data.mean()
@@ -163,9 +162,6 @@ def train(args):
 
     model.cuda()
 
-    max_value = []
-    min_value = []
-
     print('Training with %d.' % train_dataset_size)
     print('Validating with %d.' % val_dataset_size)
     for epoch in range(args.epochs):
@@ -178,22 +174,6 @@ def train(args):
             optimizer.zero_grad()
             us_sample_slices, opf_sample_slices, labels, tf_index = [x.cuda() for x in train_blob]
             
-            ## Get max and min value of 6dof
-            label_nor = labels.data.cpu().numpy()
-            for i in range(label_nor.shape[0]):
-                for j in range(label_nor.shape[1]):
-                    dof_tmp = label_nor[i][j]
-                    max_tmp, min_tmp = tools.get_max_min(dof_tmp)
-                    if len(max_value) == 0:
-                        max_value = max_tmp
-                        min_value = min_tmp
-                    else:
-                        for k in range(len(max_value)):
-                            if max_tmp[k] > max_value[k]:
-                                max_value[k] = max_tmp[k]
-                            if min_tmp[k] < min_value[k]:
-                                min_value[k] = min_tmp[k]
-
             trans, rot = model(us_sample_slices, opf_sample_slices, args.neighbour_slice)
             loss = loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index)
             running_loss += loss.data.mean()
@@ -202,8 +182,6 @@ def train(args):
             scaler.step(optimizer)
             scaler.update()
 
-        # print("max_value: ", max_value)
-        # print("min_value: ", min_value)
         train_epoch_loss = running_loss / train_dataset_size
 
         global training_lowest_loss
