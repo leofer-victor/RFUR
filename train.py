@@ -19,9 +19,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 import core.network as network
-import core.network_2d as network_2d
 import core.datasets as datasets
-import core.tools as tools
 from core.logger import Logger
 
 try:
@@ -115,7 +113,8 @@ def get_correlation_loss(labels, outputs):
     var_x = torch.sum((x - mean_x) ** 2 / x.shape[0])
     var_y = torch.sum((y - mean_y) ** 2 / y.shape[0])
     corr_xy = cov_xy / (torch.sqrt(var_x * var_y))
-    return corr_xy
+    loss = 1 - corr_xy
+    return loss
 
 @torch.no_grad()
 def validate(criterion_mse, criterion_huber, epoch, model, val_dataset, val_dataset_size):
