@@ -95,8 +95,7 @@ class test():
         np.savetxt(dof_path, np.array(dof_res), fmt='%.8f')
         
         self.result = self.format_dof(dof_res)
-        # res_path = path.join(self.result_path, '{}.txt'.format(args.case))
-        res_path = path.join('/home/leofer/experiment/freehand/freehand/pose_comparison', '{}.txt'.format(args.case))
+        res_path = path.join(self.result_path, '{}.txt'.format(args.case))
         np.savetxt(res_path, np.array(self.result), fmt='%.8f')
         
         self.gt_pts = tools.params_to_corners(self.case_pose, self.us_cali_mat)
@@ -182,12 +181,8 @@ class test():
         for idx in range(0, 6):
             plt.subplot(2, 3, idx + 1)
             plt.plot(x, res[:, idx], label='accumulated error')
-            # plt.plot(x, pred_dofs[:, idx].flatten(), label='prediction')
-            # plt.plot(x, gt_dofs[:, idx].flatten(), label='groundtruth')
             plt.legend(loc='upper right')
             if idx == 0:
-                # plt.plot(x, tx_s + abs((pred_dofs[:, idx] - gt_dofs[:, idx]).flatten()), label='Accumulated error')
-                # tx_s += abs((pred_dofs[:, idx] - gt_dofs[:, idx]).flatten())
                 plt.title('tx (mm)')
             elif idx == 1:
                 plt.title('ty (mm)')
@@ -218,8 +213,6 @@ class test():
             img_path = path.join(us_img_dir, '{:04}.png'.format(frame_id))
             input_img = cv2.imread(img_path, 0)
             input_img = tools.data_transform(input_img)
-            # print('frame_path\n{}'.format(frame_id))
-            # time.sleep(30)
             input_img = cv2.cvtColor(input_img, cv2.COLOR_GRAY2RGB)
             input_img = input_img / 255
 
@@ -227,7 +220,6 @@ class test():
                 stride = 2
             else:
                 stride = 10
-            # self.ax.plot_surface(X, Y, Z, rstride=20, cstride=20, facecolors=input_img)
             self.ax.plot_surface(X, Y, Z, rstride=stride, cstride=stride, facecolors=input_img, zorder=0.1)
     
     def draw_one_sequence(self, corner_pts, name, colorRGB=(255, 0, 0), line_width=1, constant=True):
@@ -252,7 +244,6 @@ class test():
                     xs = corner_pts[frame_id, pt_id, 0], corner_pts[frame_id, pt_id + 1, 0]
                     ys = corner_pts[frame_id, pt_id, 1], corner_pts[frame_id, pt_id + 1, 1]
                     zs = corner_pts[frame_id, pt_id, 2], corner_pts[frame_id, pt_id + 1, 2]
-                    # self.ax.plot(xs, ys, zs, color=tuple(colors[frame_id, :]), lw=line_width, zorder=1)
                     self.ax.plot(xs, ys, zs, color='b', lw=line_width, zorder=1)
             elif frame_id == corner_pts.shape[0] - 1:
                 """ Connect to the former frame """
@@ -311,7 +302,6 @@ class test():
     def visualize_sequences(self, args):
         self.draw_one_sequence(corner_pts=self.gt_pts, name='Groundtruth', colorRGB=(255, 0, 0))
         self.draw_one_sequence(corner_pts=self.res_pts, name='RFUR-Net ({:.4f}mm)'.format(self.trans_pts1_error), colorRGB=(0, 153, 76))
-        # self.draw_img_sequence(args, self.gt_pts)
 
         pts_all, boundary = self.get_cpts(self.gt_pts)
         datax = pts_all[:, 0]
@@ -323,7 +313,6 @@ class test():
         self.ax.set_xticks(np.linspace(boundary[0][0] - 30, boundary[1][0] + 30, 10))
         self.ax.set_yticks(np.linspace(boundary[0][1] - 40, boundary[1][1] + 40, 5))
         self.ax.set_zticks(np.linspace(boundary[0][2] - 30, boundary[1][2] + 30, 5))
-        # self.ax.invert_zaxis()
         self.ax.set_xlabel("x")
         self.ax.set_ylabel("y")
         self.ax.set_zlabel("z")
@@ -445,8 +434,6 @@ class test():
         if last_batch_size != 0:
             last_start_num = slice_num - self.group_size + 1
  
-        # total_nums = groups_num *  (self.group_size - 1) + 1
-        # print('slice_num {}, batch_size {}'.format(total_nums, self.group_size))
         groups_ids = []
         for i in range(groups_num):
             this_batch_id = self.slice_ids[i * (self.group_size - 1) : (i + 1) * (self.group_size - 1) + 1]
@@ -456,18 +443,6 @@ class test():
             last_batch = self.slice_ids[slice_num - self.group_size + 1 : slice_num]
             
         return groups_ids, last_start_num, last_batch
-    
-    def divide_group11(self, end_slice_nums):
-        groups_num = end_slice_nums + 1
-        
-        # total_nums = groups_num *  (self.group_size - 1) + 1
-        # print('slice_num {}, batch_size {}'.format(total_nums, self.group_size))
-
-        groups_ids = []
-        for i in range(groups_num):
-            this_batch_id = self.slice_ids[i : i + (self.group_size - 1)]
-            groups_ids.append(this_batch_id)
-        return groups_ids
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
