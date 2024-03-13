@@ -58,48 +58,21 @@ def loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index):
 
     loss = tra_loss + rot_loss
 
-    # print("trans:\n", trans)
-    # print("quat:\n", rot)
-    # print("gt:\n", labels, "\n")
-
     labels_sum = torch.sum(labels, dim=1)
     tra_sum_loss = criterion_huber(torch.sum(trans, dim=1), labels_sum[:, :3])
     rot_sum_loss = criterion_huber(torch.sum(rot, dim=1), labels_sum[:, 3:])
     sum_loss = 10 * (tra_sum_loss + rot_sum_loss)
 
-    outputs = torch.cat((trans, rot), 2)
-
     tra_corr_loss = 0.2 * get_correlation_loss(trans, labels[:, :, :3])
     rot_corr_loss = 0.1 * get_correlation_loss(rot, labels[:, :, 3:])
-    # corr_loss = 0.2 * correlation_loss(trans, rot, labels)
 
-    hybrid_loss = loss + sum_loss + tra_corr_loss + rot_corr_loss
+    corr_loss = 1 - tra_corr_loss - rot_corr_loss
 
-    print("loss: ", loss, "sum_loss: ", sum_loss, "corr_loss: ", tra_corr_loss + rot_corr_loss)
+    hybrid_loss = loss + sum_loss + corr_loss
+
+    print("loss: ", loss, "sum_loss: ", sum_loss, "corr_loss: ", corr_loss)
 
     return hybrid_loss
-
-def correlation_loss(trans, rot, labels):
-    sum = 0
-    for i in range(len(trans)):
-        sum1 = get_correlation_loss_value(labels[i, :, 0], trans[i, :, 0]) + get_correlation_loss_value(labels[i, :, 1], trans[i, :, 1]) + get_correlation_loss_value(labels[i, :, 2], trans[i, :, 2]) \
-            + get_correlation_loss_value(labels[i, :, 3], rot[i, :, 0]) + get_correlation_loss_value(labels[i, :, 4], rot[i, :, 1]) + get_correlation_loss_value(labels[i, :, 5], rot[i, :, 2])
-        sum1 = sum1 / 6
-        sum += sum1
-    return 1 - sum
-
-def get_correlation_loss_value(labels, outputs):
-    x = outputs.flatten()
-    y = labels.flatten()
-    xy = x * y
-    mean_xy = torch.mean(xy)
-    mean_x = torch.mean(x)
-    mean_y = torch.mean(y)
-    cov_xy = mean_xy - mean_x * mean_y
-    var_x = torch.sum((x - mean_x) ** 2 / x.shape[0])
-    var_y = torch.sum((y - mean_y) ** 2 / y.shape[0])
-    corr_xy = cov_xy / (torch.sqrt(var_x * var_y))
-    return corr_xy
 
 def get_correlation_loss(labels, outputs):
     x = outputs.flatten()
@@ -112,8 +85,7 @@ def get_correlation_loss(labels, outputs):
     var_x = torch.sum((x - mean_x) ** 2 / x.shape[0])
     var_y = torch.sum((y - mean_y) ** 2 / y.shape[0])
     corr_xy = cov_xy / (torch.sqrt(var_x * var_y))
-    loss = 1 - corr_xy
-    return loss
+    return corr_xy
 
 @torch.no_grad()
 def validate(criterion_mse, criterion_huber, epoch, model, val_dataset, val_dataset_size):
@@ -129,18 +101,12 @@ def validate(criterion_mse, criterion_huber, epoch, model, val_dataset, val_data
     epoch_loss = val_loss / val_dataset_size
     global lowest_loss
     global best_epoch
-    if epoch_loss < lowest_loss and epoch > 200:
+    if epoch_loss < lowest_loss:
         lowest_loss = epoch_loss
         best_epoch = epoch + 1
         check_path = 'checkpoints/Best_val_%s.pth' % ('RFUR')
         torch.save(model.state_dict(), check_path)
         print('*' * 5 + 'Best model updated with loss={:.4f} at epoch {}.'.format(lowest_loss, epoch + 1))
-    
-    if epoch_loss < saved_check_points_loss and epoch > 400 and epoch_loss != lowest_loss:
-        check_path = 'checkpoints/val_%d_%s_%f.pth' % (epoch + 1, 'rfur', epoch_loss)
-        torch.save(model.state_dict(), check_path)
-        print('*' * 5 + 'Check points with loss={:.4f} at epoch {}.'.format(epoch_loss, epoch + 1))
-
     return epoch_loss, lowest_loss, best_epoch
 
 def train(args):
@@ -181,19 +147,6 @@ def train(args):
             scaler.update()
 
         train_epoch_loss = running_loss / train_dataset_size
-
-        global training_lowest_loss
-        if train_epoch_loss < training_lowest_loss and epoch > args.epochs - 300:
-            training_lowest_loss = train_epoch_loss
-            best_epoch = epoch + 1
-            check_path = 'checkpoints/Training_Best_%s_{}.pth'.format(epoch + 1) % ('RFUR')
-            torch.save(model.state_dict(), check_path)
-            print('*' * 5 + 'Best training model updated with loss={:.4f} at epoch {}.'.format(lowest_loss, epoch + 1))
-
-        if train_epoch_loss < saved_check_points_loss and epoch > args.epochs - 100:
-            check_path = 'checkpoints/tra_%d_%s_%f.pth' % (epoch + 1, 'rfur', train_epoch_loss)
-            torch.save(model.state_dict(), check_path)
-            print('*' * 5 + 'Check points with loss={:.4f} at epoch {}.'.format(train_epoch_loss, epoch + 1))
 
         # Validation
         val_epoch_loss, lowest_loss, best_epoch = validate(criterion_mse, criterion_huber, epoch, model, val_loader, val_dataset_size)
