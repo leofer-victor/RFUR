@@ -97,10 +97,6 @@ class FreehandDataset(data.Dataset):
                     dof = dof / normalization.flatten()
                 labels[i] = dof
 
-        dof_global = tools.get_dof_label(case_pose[select_ids[0], :], case_pose[select_ids[-1], :])
-        tf_index = self.get_tf_index(dof_global)
-        tf_index = torch.from_numpy(tf_index).float().to(self.device)
-        
         us_sample_slices = np.asarray(us_sample_slices)
         opf_sample_slices = np.asarray(opf_sample_slices)
 
@@ -111,26 +107,8 @@ class FreehandDataset(data.Dataset):
 
         labels = torch.from_numpy(labels).float().to(self.device)
 
-        return us_sample_slices, opf_sample_slices, labels, tf_index
+        return us_sample_slices, opf_sample_slices, labels
     
-    def get_tf_index(self, dof_global):
-        tf_index = np.empty(6)
-        i = 0
-        for value in dof_global[0:3]:
-            if abs(value) < self.tra_index_weight:
-                tf_index[i] = 0
-            else:
-                tf_index[i] = 1
-            i += 1
-        for value in dof_global[3:]:
-            if abs(value) < self.rot_index_weight:
-                tf_index[i] = 0
-            else:
-                tf_index[i] = 1
-            i += 1
-
-        return tf_index
-  
 def data_loader(args, train=True):
     train_dataset = FreehandDataset(args, train=train)
     train_loader = data.DataLoader(train_dataset, batch_size=args.batch_size)

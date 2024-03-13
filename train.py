@@ -52,7 +52,7 @@ def fetch_optimizer(args, model):
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.95)
     return optimizer, scheduler
 
-def loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index):
+def loss_function(criterion_mse, criterion_huber, trans, rot, labels):
     tra_loss = 3 * criterion_mse(trans, labels[:, :, :3])
     rot_loss = 1 * criterion_mse(rot, labels[:, :, 3:])
 
@@ -93,9 +93,9 @@ def validate(criterion_mse, criterion_huber, epoch, model, val_dataset, val_data
     val_loss = 0.0
 
     for val_blob in val_dataset:
-        us_sample_slices, opf_sample_slices, labels, tf_index = [x.cuda() for x in val_blob]
+        us_sample_slices, opf_sample_slices, labels = [x.cuda() for x in val_blob]
         trans, rot = model(us_sample_slices, opf_sample_slices, args.neighbour_slice)
-        loss = loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index)
+        loss = loss_function(criterion_mse, criterion_huber, trans, rot, labels)
         val_loss += loss.data.mean()
 
     epoch_loss = val_loss / val_dataset_size
@@ -136,10 +136,10 @@ def train(args):
 
         for train_blob in train_loader:
             optimizer.zero_grad()
-            us_sample_slices, opf_sample_slices, labels, tf_index = [x.cuda() for x in train_blob]
+            us_sample_slices, opf_sample_slices, labels = [x.cuda() for x in train_blob]
             
             trans, rot = model(us_sample_slices, opf_sample_slices, args.neighbour_slice)
-            loss = loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index)
+            loss = loss_function(criterion_mse, criterion_huber, trans, rot, labels)
             running_loss += loss.data.mean()
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)     

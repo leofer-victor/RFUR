@@ -334,24 +334,6 @@ class test():
             outputs = outputs * self.normalization.flatten()
         return outputs
     
-    def get_tf_index(self, dof_global):
-        tf_index = np.empty(6)
-        i = 0
-        for value in dof_global[0:3]:
-            if abs(value) < self.tra_index_weight:
-                tf_index[i] = 0
-            else:
-                tf_index[i] = 1
-            i += 1
-        for value in dof_global[3:]:
-            if abs(value) < self.rot_index_weight:
-                tf_index[i] = 0
-            else:
-                tf_index[i] = 1
-            i += 1
-
-        return tf_index
-
     def get_test_data_path(self, args):
         flow_img_dir = path.join(args.root_dir, 'image', 'test', args.case, 'flow')
         us_img_dir = path.join(args.root_dir, 'image', 'test', args.case, 'us')
