@@ -1,13 +1,3 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   datasets.py
-@Time    :   2024-01-17 13:55:32
-@Author  :   feng li
-@Contact :   feng.li@tum.de
-@Description    :   
-'''
-
 import numpy as np
 import os
 import torch

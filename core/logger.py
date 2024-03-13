@@ -1,13 +1,3 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   logger.py
-@Time    :   2024-01-18 15:53:29
-@Author  :   feng li
-@Contact :   feng.li@tum.de
-@Description    :   
-'''
-
 import os
 
 from torch.utils.tensorboard import SummaryWriter

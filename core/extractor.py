@@ -1,13 +1,3 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   extractor.py
-@Time    :   2024-01-18 18:25:26
-@Author  :   feng li
-@Contact :   feng.li@tum.de
-@Description    :   
-'''
-
 import torch
 import torch.nn as nn
 

@@ -1,13 +1,3 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   test.py
-@Time    :   2024-01-31 15:13:07
-@Author  :   feng li
-@Contact :   feng.li@tum.de
-@Description    :   
-'''
-
 import argparse
 
 import time

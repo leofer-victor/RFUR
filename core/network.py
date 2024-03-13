@@ -1,13 +1,3 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   network.py
-@Time    :   2024-01-17 13:55:28
-@Author  :   feng li
-@Contact :   feng.li@tum.de
-@Description    :   
-'''
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

@@ -1,13 +1,3 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   tools.py
-@Time    :   2024-01-17 13:55:24
-@Author  :   feng li
-@Contact :   feng.li@tum.de
-@Description    :   
-'''
-
 import math
 import os
 import cv2
@@ -18,7 +8,6 @@ import matplotlib.pyplot as plt
 
 from numpy.linalg import inv
 from transforms3d import euler, quaternions
-# import transformations as tfms
 
 def filename_list(dir):
     images = []

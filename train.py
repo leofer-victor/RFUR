@@ -1,14 +1,3 @@
-#!/usr/bin/env python7
-# -*- encoding: utf-8 -*-
-'''
-@File    :   train.py
-@Time    :   2024-01-17 13:54:17
-@Author  :   feng li
-@Contact :   feng.li@tum.de
-@Description    :   
-'''
-
-
 import argparse
 import time
 from os import path, mkdir
