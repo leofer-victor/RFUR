@@ -6,7 +6,7 @@
 
 ## Environment
 
-Set your environment by anaconda
+Set your environment by anaconda and use followed command to install the required package.
 
 ```python
 pip install -r ./requirements.txt
