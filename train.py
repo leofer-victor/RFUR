@@ -50,7 +50,6 @@ def count_parameters(model):
 def fetch_optimizer(args, model):
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.95)
-    # scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.learning_rate, total_steps=args.epochs + 10, pct_start=0.05, cycle_momentum=False)
     return optimizer, scheduler
 
 def loss_function(criterion_mse, criterion_huber, trans, rot, labels, tf_index):

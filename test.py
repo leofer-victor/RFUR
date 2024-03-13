@@ -163,13 +163,7 @@ class test():
             gt_dofs[i] = gt_dof
 
         x = np.linspace(1, nums - 1, nums - 1)
-
-        # tx_s = 0
-        # ty_s = 0
-        # tz_s = 0
-        # rx_s = 0
-        # ry_s = 0
-        # rz_s = 0
+        
         res = np.empty((nums - 1, 6))
         for i in range(nums - 1):
             error = abs(pred_dofs[i, :] - gt_dofs[i, :])
