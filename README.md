@@ -12,6 +12,45 @@ Set your environment by anaconda
 pip install -r ./requirements.txt
 ```
 
+## Required Data
+
+Our structure of datasets is as follows. You should put your optical flow images and ultrasound images into flow and us, respectively.
+
+```
+├── datasets
+    ├── image
+        ├── train
+        	├── case0000
+        		├── flow
+        		├── us
+        	...
+        	├── caseN
+        		├── flow
+        		├── us
+        ├── val
+        	├── case0000
+        		├── flow
+        		├── us
+        	...
+        	├── caseN
+        		├── flow
+        		├── us
+        ├── test
+        	├── case0000
+        		├── flow
+        		├── us
+        	...
+        	├── caseN
+        		├── flow
+        		├── us
+    ├── pose
+    	├── case0000.txt
+    	...
+    	├── caseN.txt
+```
+
+
+
 ## Running
 
 You can make a change to the train.sh and test.sh and run the training and testing by
