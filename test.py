@@ -85,11 +85,6 @@ class test():
         
         time_elapsed1 = time.time() - since1
         print('*' * 10 + 'Total time: {:.3f}s'.format(time_elapsed1 % 60))
-
-        ## For slice group
-        # for id, dof in enumerate(dof_res):
-        #     if dof_index[id] > 1:
-        #         dof /= dof_index[id] 
         
         dof_path = path.join(self.result_path, 'dof-{}.txt'.format(args.case))
         np.savetxt(dof_path, np.array(dof_res), fmt='%.8f')
@@ -116,9 +111,8 @@ class test():
 
         self.draw_dof_image(self.result, self.case_pose)
 
-        # self.draw_accumulate_error(self.result, self.case_pose)
-
     def draw_dof_image(self, predictions, gt):
+        fig = plt.figure()
         nums = len(predictions)
         pred_dofs = np.empty((nums - 1, 6))
         gt_dofs = np.empty((nums - 1, 6))
@@ -135,46 +129,6 @@ class test():
             plt.plot(x, abs((pred_dofs[:, idx] - gt_dofs[:, idx]).flatten()), label='error')
             plt.plot(x, pred_dofs[:, idx].flatten(), label='prediction')
             plt.plot(x, gt_dofs[:, idx].flatten(), label='groundtruth')
-            plt.legend(loc='upper right')
-            if idx == 0:
-                plt.title('tx (mm)')
-            elif idx == 1:
-                plt.title('ty (mm)')
-            elif idx == 2:
-                plt.title('tz (mm)')
-            elif idx == 3:
-                plt.title('rx (degree)')
-            elif idx == 4:
-                plt.title('ry (degree)')
-            elif idx == 5:
-                plt.title('rz (degree)')
-        
-        plt.show()
-
-    def draw_accumulate_error(self, predictions, gt):
-        nums = len(predictions)
-        pred_dofs = np.empty((nums - 1, 6))
-        gt_dofs = np.empty((nums - 1, 6))
-
-        for i in range(nums - 1):
-            pred_dof = tools.get_dof_label(predictions[i], predictions[i+1])
-            gt_dof = tools.get_dof_label(gt[i], gt[i+1])
-            pred_dofs[i] = pred_dof
-            gt_dofs[i] = gt_dof
-
-        x = np.linspace(1, nums - 1, nums - 1)
-        
-        res = np.empty((nums - 1, 6))
-        for i in range(nums - 1):
-            error = abs(pred_dofs[i, :] - gt_dofs[i, :])
-            if i == 0:
-                res[i, : ] = error
-            else:
-                res[i, :] = error + res[i - 1, :]
-
-        for idx in range(0, 6):
-            plt.subplot(2, 3, idx + 1)
-            plt.plot(x, res[:, idx], label='accumulated error')
             plt.legend(loc='upper right')
             if idx == 0:
                 plt.title('tx (mm)')
@@ -294,8 +248,9 @@ class test():
         return pts_all, boundary
 
     def visualize_sequences(self, args):
-        self.draw_one_sequence(corner_pts=self.gt_pts, name='Groundtruth', colorRGB=(255, 0, 0))
-        self.draw_one_sequence(corner_pts=self.res_pts, name='RFUR-Net ({:.4f}mm)'.format(self.trans_pts1_error), colorRGB=(0, 153, 76))
+        self.draw_one_sequence(self.gt_pts, name='Groundtruth', colorRGB=(255, 0, 0))
+        self.draw_one_sequence(self.res_pts, name='RFUR-Net ({:.4f}mm)'.format(self.trans_pts1_error), colorRGB=(0, 153, 76))
+        # self.draw_img_sequence(args, self.gt_pts)
 
         pts_all, boundary = self.get_cpts(self.gt_pts)
         datax = pts_all[:, 0]
@@ -318,7 +273,6 @@ class test():
 
         plt.title(args.case)
         plt.savefig(path.join(self.result_path, 'plots', '{}_visual.jpg'.format(args.case)))
-        plt.show()
 
     def format_dof(self, format_dofs):
         format_res = []

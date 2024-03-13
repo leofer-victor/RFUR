@@ -199,16 +199,12 @@ class Freehand(nn.Module):
                 us_pack_new[1][idx] = img2
                 idx += 1
             us_mix[i] = us_pack_new
-        # x = torch.cat([us_mix.to(self.device), opf_imgs], 1)
-        x = opf_imgs
-        # x = us_imgs
+        x = torch.cat([us_mix.to(self.device), opf_imgs], 1)
         
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
-        # x = self.tanh(x)
         x = self.maxpool(x)
-        # x = self.conv_pool(x)
 
         x = self.layer1(x)
         x = self.layer2(x)
@@ -218,12 +214,10 @@ class Freehand(nn.Module):
         at_map = self.attention(x)
         x = x * at_map
         mp = self.relu(x)
-        # mp = self.tanh(x)
 
         x = self.avgpool(mp)
         x = x.view(x.size(0), -1)
 
-        # x = self.fc1(x)
         t = self.fc1(x[:, :1024])
         r = self.fc2(x[:, 1024:])
 
@@ -234,10 +228,9 @@ class Freehand(nn.Module):
 
 def network(args):
     model = Freehand(ResNeXtBottleneck, [3, 4, 6, 3])
-    model.conv1 = nn.Conv3d(in_channels=3, out_channels=64, kernel_size=(3, 7, 7), stride=(1, 2, 2), padding=(1, 3, 3), bias=False)
+    model.conv1 = nn.Conv3d(in_channels=5, out_channels=64, kernel_size=(3, 7, 7), stride=(1, 2, 2), padding=(1, 3, 3), bias=False)
     num_ftrs = model.fc1.in_features
     model.fc1 = nn.Linear(num_ftrs, (args.neighbour_slice - 1) * 3)
     num_ftrs = model.fc2.in_features
     model.fc2 = nn.Linear(num_ftrs, (args.neighbour_slice - 1) * 3)
-    # model.fc = nn.Linear(num_ftrs, 6)
     return model

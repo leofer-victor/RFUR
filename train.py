@@ -101,7 +101,7 @@ def validate(criterion_mse, criterion_huber, epoch, model, val_dataset, val_data
     epoch_loss = val_loss / val_dataset_size
     global lowest_loss
     global best_epoch
-    if epoch_loss < lowest_loss:
+    if epoch_loss < lowest_loss and epoch > 5:
         lowest_loss = epoch_loss
         best_epoch = epoch + 1
         check_path = 'checkpoints/Best_val_%s.pth' % ('RFUR')
