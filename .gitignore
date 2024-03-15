@@ -1,9 +1,0 @@
-# .gitignore
-
-/train_ft.py
-/train_ft.sh
-/test_group.py
-/data
-/checkpoints
-/core/__pycache__
-/results
